@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import DDLCButton from "@/components/Common/Buttons/Button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCharacter } from '../CharacterContext';
@@ -45,8 +46,18 @@ const characters: Character[] = [
 ];
 
 export default function NewGame() {
+  const router = useRouter();
   const { selectedCharacter, setSelectedCharacter } = useCharacter();
   const [hoveredCharacter, setHoveredCharacter] = useState<string | null>(null);
+
+  const handleStartJourney = () => {
+    if (selectedCharacter) {
+      // You might want to store the selected character in localStorage or context
+      // before redirecting to auth
+      localStorage.setItem('selectedCompanion', selectedCharacter);
+      router.push('/auth');
+    }
+  };
 
   // This will be rendered in the card
   const menuContent = (
@@ -101,7 +112,7 @@ export default function NewGame() {
       <div className="flex justify-center">
         <DDLCButton 
           label="Start Journey" 
-          onClick={() => console.log("Starting with character:", selectedCharacter)}
+          onClick={handleStartJourney}
           disabled={!selectedCharacter}
         />
       </div>

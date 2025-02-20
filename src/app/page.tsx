@@ -53,10 +53,16 @@ function MainContent() {
       <AnimatePresence mode="wait">
         {selectedCharacter && (
           <motion.div
+            key={selectedCharacter}
             className="fixed left-[27%] top-[10%] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-0"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 10 }}
+            transition={{ 
+              duration: 0.5,
+              ease: "easeOut",
+              opacity: { duration: 0.3 }
+            }}
           >
             <img
               src={characters[selectedCharacter as keyof typeof characters]?.spritePath}

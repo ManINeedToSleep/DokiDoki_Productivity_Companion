@@ -1,27 +1,26 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import DDLCButton from "@/components/Common/Buttons/Button";
+import { motion } from "framer-motion";
 
 export default function LoadGame() {
-  const savedSessions = [
-    { id: 1, name: "Morning Study", date: "2024-03-20" },
-    { id: 2, name: "Evening Focus", date: "2024-03-19" },
-  ];
+  const router = useRouter();
 
   return (
     <>
       <h2 className="text-3xl font-[Riffic] text-pink-700 mb-4">Resume Progress</h2>
       <div className="space-y-4">
-        {savedSessions.map(session => (
-          <div key={session.id} className="bg-pink-50 p-4 rounded-lg">
-            <h3 className="text-xl text-pink-800">{session.name}</h3>
-            <p className="text-sm text-pink-600">{session.date}</p>
-            <DDLCButton 
-              label="Load" 
-              onClick={() => console.log(`Loading session ${session.id}`)}
-            />
-          </div>
-        ))}
+        <div className="bg-pink-50 p-6 rounded-lg">
+          <h3 className="text-xl text-pink-800 mb-2">Welcome Back!</h3>
+          <p className="text-pink-900 mb-6">
+            Sign in to continue your productivity journey with your companion.
+          </p>
+          <DDLCButton 
+            label="Sign In" 
+            onClick={() => router.push('/auth')}
+          />
+        </div>
       </div>
     </>
   );
