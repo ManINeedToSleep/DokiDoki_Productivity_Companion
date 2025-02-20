@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import MenuOptions from "@/components/Landing/MenuOptions";
 import { CharacterProvider, useCharacter } from "@/components/Landing/CharacterContext";
+import Image from 'next/image';
 
 const characters = {
   "sayori": {
@@ -41,11 +42,14 @@ function MainContent() {
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 1 }}
       >
-        <img 
+        <Image 
           src="/images/backgrounds/Menu-Screen.png" 
           alt="Doki Doki Productivity Club Menu"
           className="h-screen w-full object-cover"
           style={{ objectPosition: 'left center' }}
+          width={1920}
+          height={1080}
+          priority
         />
       </motion.div>
 
@@ -54,7 +58,7 @@ function MainContent() {
         {selectedCharacter && (
           <motion.div
             key={selectedCharacter}
-            className="fixed left-[27%] top-[10%] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-0"
+            className="fixed left-[5%] top-[10%] pointer-events-none z-0"
             initial={{ opacity: 0, scale: 0.8, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 10 }}
@@ -64,10 +68,13 @@ function MainContent() {
               opacity: { duration: 0.3 }
             }}
           >
-            <img
+            <Image
               src={characters[selectedCharacter as keyof typeof characters]?.spritePath}
               alt={characters[selectedCharacter as keyof typeof characters]?.name}
               className="h-[85vh] object-contain origin-bottom"
+              width={724}
+              height={1024}
+              priority
             />
           </motion.div>
         )}

@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import DDLCButton from "@/components/Common/Buttons/Button";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useCharacter } from '../CharacterContext';
 
 interface Character {
@@ -48,7 +47,6 @@ const characters: Character[] = [
 export default function NewGame() {
   const router = useRouter();
   const { selectedCharacter, setSelectedCharacter } = useCharacter();
-  const [hoveredCharacter, setHoveredCharacter] = useState<string | null>(null);
 
   const handleStartJourney = () => {
     if (selectedCharacter) {
@@ -77,8 +75,6 @@ export default function NewGame() {
               ${selectedCharacter === char.id ? 'scale-110' : 'hover:scale-105'}`}
             whileHover={{ scale: selectedCharacter === char.id ? 1.1 : 1.05 }}
             onClick={() => setSelectedCharacter(char.id)}
-            onHoverStart={() => setHoveredCharacter(char.id)}
-            onHoverEnd={() => setHoveredCharacter(null)}
           >
             <motion.img
               src={char.chibiPath}

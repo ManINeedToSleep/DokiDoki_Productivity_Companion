@@ -164,7 +164,7 @@ export default function Options() {
               {testament.character}
             </h3>
             <p className="text-sm text-pink-800">
-              "{testament.title}"
+              &quot;{testament.title}&quot;
             </p>
           </motion.button>
         ))}

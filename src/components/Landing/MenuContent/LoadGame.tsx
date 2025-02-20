@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import DDLCButton from "@/components/Common/Buttons/Button";
-import { motion } from "framer-motion";
 
 export default function LoadGame() {
   const router = useRouter();
