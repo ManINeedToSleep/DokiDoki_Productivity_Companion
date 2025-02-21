@@ -7,19 +7,19 @@ import Image from 'next/image';
 
 const characters = {
   "sayori": {
-    spritePath: "/images/sprites/Sayori-hc-724.png",
+    spritePath: "/images/sprites/sayori-hc-724.png",
     name: "Sayori"
   },
   "yuri": {
-    spritePath: "/images/sprites/Yuri-hc-724.png",
+    spritePath: "/images/sprites/yuri-hc-724.png",
     name: "Yuri"
   },
   "natsuki": {
-    spritePath: "/images/sprites/Natsuki-hc-724.png",
+    spritePath: "/images/sprites/natsuki-hc-724.png",
     name: "Natsuki"
   },
   "monika": {
-    spritePath: "/images/sprites/Monika-hc-29.png",
+    spritePath: "/images/sprites/monika-hc-724.png",
     name: "Monika"
   }
 };
