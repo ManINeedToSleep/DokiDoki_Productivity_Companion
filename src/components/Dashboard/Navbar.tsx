@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -30,7 +29,6 @@ const navItems: NavItem[] = [
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
-  const [isHovered, setIsHovered] = useState<string | null>(null);
 
   const handleSignOut = async () => {
     try {

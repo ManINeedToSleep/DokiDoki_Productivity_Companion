@@ -2,45 +2,25 @@
 
 import { motion } from 'framer-motion';
 import { useUserData } from '@/hooks/useUserData';
+import Loading from "@/components/Common/Loading";
 
-const companionData = {
-  sayori: {
-    spritePath: "/images/sprites/Sayori-hc-724.png",
-    welcomeMessages: [
-      "Heeeey! Welcome back! Ready to be productive together? ♪",
-      "Yay! You're here! Let's make today super awesome!",
-      "I knew you'd come back! Let's do our best today!"
-    ],
-    newUserMessages: [
-      "Hi! I'm Sayori! I'll be your study buddy from now on!",
-      "We're going to have so much fun being productive together!"
-    ]
-  },
-  yuri: {
-    spritePath: "/images/sprites/Yuri-hc-724.png",
-    welcomeMessages: [
-      "Welcome back... I've been looking forward to our next study session.",
-      "Shall we begin where we left off?",
-      "I find our productive moments together... quite enjoyable."
-    ],
-    newUserMessages: [
-      "Hello... I'm Yuri. I'll do my best to help you stay focused.",
-      "I hope we can create a peaceful and productive atmosphere together."
-    ]
-  },
-  // Add other characters...
-};
+type CompanionType = 'sayori' | 'yuri' | 'natsuki' | 'monika';
 
 export default function CompanionDisplay() {
   const { userData, loading } = useUserData();
-  const companion = userData?.settings.selectedCompanion || 'sayori';
-  
-  if (loading) return null;
+
+  if (loading) {
+    return <Loading message="Loading your companion..." />;
+  }
+
+  const companion = userData?.settings?.selectedCompanion as CompanionType;
+
+  if (!companion) return null;
 
   return (
     <div className="h-full flex items-end justify-center">
       <motion.img
-        src={companionData[companion as keyof typeof companionData].spritePath}
+        src={`/images/sprites/${companion}-hc-724.png`}
         alt={`${companion} sprite`}
         className="h-[90vh] object-contain"
         initial={{ opacity: 0, x: -50 }}

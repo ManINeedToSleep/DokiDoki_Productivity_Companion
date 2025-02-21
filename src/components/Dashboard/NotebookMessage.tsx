@@ -1,115 +1,75 @@
 "use client";
 
-import { motion } from 'framer-motion';
 import { useUserData } from '@/hooks/useUserData';
-import { useMemo } from 'react';
 
-const companionMessages = {
+type CompanionType = 'sayori' | 'yuri' | 'natsuki' | 'monika';
+
+const companionMessages: Record<CompanionType, {
+  welcomeMessages: string[];
+  newUserMessages: string[];
+}> = {
   sayori: {
-    new: [
+    welcomeMessages: [
       "I'm so excited to start this journey with you! Let's make every day count! ♪",
-      "Yay! A new friend to study with! We're going to have so much fun being productive!",
-      "Hi hi! I'm Sayori! I'll help you stay motivated and cheerful! ♪"
+      "Dear {name}, let's do our best together!"
     ],
-    returning: [
-      "Welcome back! Ready to be super productive today? ♪",
-      "Yay! You're here! Let's make today amazing!",
-      "I knew you'd come back! Let's do our best together!"
-    ],
-    progress: (sessions: number) => `You've completed ${sessions} sessions so far! That's amazing! Keep it up! ♪`
+    newUserMessages: [
+      "Hi! I'm Sayori! I'll be your study buddy from now on!",
+      "We're going to have so much fun being productive together!"
+    ]
   },
   yuri: {
-    new: [
-      "I hope we can create a peaceful and productive atmosphere together...",
-      "I'll do my best to help you stay focused...",
-      "Welcome... I look forward to our study sessions together..."
+    welcomeMessages: [
+      "Welcome back... I look forward to helping you stay focused.",
+      "Dear {name}, shall we begin our productive session?"
     ],
-    returning: [
-      "Welcome back... Shall we begin where we left off?",
-      "I find our productive moments together... quite enjoyable.",
-      "I've been looking forward to our next study session..."
+    newUserMessages: [
+      "Hello... I'm Yuri. I'll do my best to help you stay focused.",
+      "I hope we can create a peaceful and productive atmosphere together."
+    ]
+  },
+  natsuki: {
+    welcomeMessages: [
+      "Hey! Don't expect me to go easy on you just because we're starting!",
+      "Alright, let's see what you've got! No slacking off!"
     ],
-    progress: (sessions: number) => `${sessions} study sessions... your dedication is truly admirable.`
+    newUserMessages: [
+      "Listen up! I'm Natsuki, and I'll help you stay on track!",
+      "Don't get the wrong idea, but I'll make sure you stay productive!"
+    ]
+  },
+  monika: {
+    welcomeMessages: [
+      "Welcome! I've been waiting to help you with your goals.",
+      "Hello! Ready to make the most of our time together?"
+    ],
+    newUserMessages: [
+      "Hi, I'm Monika! I'll be your personal productivity partner.",
+      "Together, we'll develop great study habits and achieve your goals!"
+    ]
   }
-  // Add other characters...
 };
 
 export default function NotebookMessage() {
-  const { userData } = useUserData();
-  const companion = userData?.settings.selectedCompanion || 'sayori';
-  const isNewUser = userData?.stats.totalSessions === 0;
-  const totalSessions = userData?.stats.totalSessions || 0;
+  const { userData, loading } = useUserData();
+  
+  if (loading || !userData) return null;
 
-  // Generate random message but keep it consistent during component lifecycle
-  const message = useMemo(() => {
-    const messages = companionMessages[companion as keyof typeof companionMessages];
-    if (!messages) return companionMessages.sayori.new[0];
+  const companion = userData.settings.selectedCompanion as CompanionType;
+  if (!companionMessages[companion]) {
+    console.error('Invalid companion type:', companion);
+    return null;
+  }
 
-    if (isNewUser) {
-      const newMessages = messages.new;
-      return newMessages[Math.floor(Math.random() * newMessages.length)];
-    }
-
-    // Alternate between returning messages and progress message
-    const returningMessages = messages.returning;
-    const shouldShowProgress = Math.random() > 0.5;
+  const messages = userData.stats.totalSessions === 0
+    ? companionMessages[companion].newUserMessages
+    : companionMessages[companion].welcomeMessages;
     
-    if (shouldShowProgress) {
-      return messages.progress(totalSessions);
-    }
-    
-    return returningMessages[Math.floor(Math.random() * returningMessages.length)];
-  }, [companion, isNewUser, totalSessions]);
+  const randomMessage = messages[Math.floor(Math.random() * messages.length)];
 
   return (
-    <motion.div 
-      className="fixed bottom-0 left-[25%] right-0 z-40"
-      initial={{ y: 100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
-    >
-      {/* Main content */}
-      <div className="relative bg-[#FFEEF3] border-t-4 border-x-4 border-[#FFB6C1] p-6">
-        <div className="max-w-4xl mx-8">
-          <div className="font-[Halogen] text-lg text-pink-700 leading-relaxed"
-            style={{ 
-              backgroundImage: "linear-gradient(transparent 0%, transparent 90%, #FFB6C1 90%, #FFB6C1 100%)",
-              backgroundSize: "100% 1.5em",
-              lineHeight: "1.5em",
-              paddingBottom: "0.5em"
-            }}
-          >
-            {isNewUser ? (
-              <p>Dear {userData?.email?.split('@')[0]},</p>
-            ) : (
-              <p>Welcome back, {userData?.email?.split('@')[0]}!</p>
-            )}
-            <p>{message}</p>
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-interface CompanionMessageProps {
-  companion: string;
-  isNewUser: boolean;
-  totalSessions: number;
-}
-
-function CompanionMessage({ companion, isNewUser, totalSessions }: CompanionMessageProps) {
-  const messages = {
-    sayori: isNewUser 
-      ? "I'm so excited to start this journey with you! Let's make every day count! ♪"
-      : `You've completed ${totalSessions} sessions so far! That's amazing!`,
-    yuri: isNewUser
-      ? "I hope we can create a peaceful and productive atmosphere together..."
-      : `${totalSessions} study sessions... your dedication is admirable.`,
-    // Add other characters...
-  };
-
-  return (
-    <p>{messages[companion as keyof typeof messages] || messages.sayori}</p>
+    <div className="text-pink-700 font-[Halogen] text-lg">
+      {randomMessage}
+    </div>
   );
 } 

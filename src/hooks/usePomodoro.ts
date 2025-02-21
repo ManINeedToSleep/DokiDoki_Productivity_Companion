@@ -1,32 +1,39 @@
 "use client";
 import { useState, useEffect, useCallback } from 'react';
 
-export type TimerType = 'pomodoro' | 'shortBreak' | 'longBreak';
+export type TimerType = 'work' | 'break' | 'longBreak';
 
 interface PomodoroConfig {
-  onComplete?: () => void;
-  onTick?: (currentTime: number) => void;
+  onComplete?: (minutesCompleted: number) => void;
+  onTick?: (remainingTime: number) => void;
 }
 
-const TIMER_DURATION = {
-  pomodoro: 25 * 60, // 25 minutes
-  shortBreak: 5 * 60, // 5 minutes
-  longBreak: 15 * 60, // 15 minutes
+export const TIMER_DURATIONS = {
+  work: 25 * 60,
+  break: 5 * 60,
+  longBreak: 15 * 60
 };
 
 export const usePomodoro = ({ onComplete, onTick }: PomodoroConfig = {}) => {
-  const [time, setTime] = useState(TIMER_DURATION.pomodoro);
+  const [time, setTime] = useState(TIMER_DURATIONS.work);
+  const [initialTime, setInitialTime] = useState(TIMER_DURATIONS.work);
   const [isActive, setIsActive] = useState(false);
-  const [timerType, setTimerType] = useState<TimerType>('pomodoro');
+  const [timerType, setTimerType] = useState<TimerType>('work');
+
+  const getMinutesCompleted = useCallback(() => {
+    return Math.floor((initialTime - time) / 60);
+  }, [initialTime, time]);
 
   const reset = useCallback(() => {
-    setTime(TIMER_DURATION[timerType]);
+    setTime(TIMER_DURATIONS[timerType]);
+    setInitialTime(TIMER_DURATIONS[timerType]);
     setIsActive(false);
   }, [timerType]);
 
   const changeTimerType = useCallback((type: TimerType) => {
     setTimerType(type);
-    setTime(TIMER_DURATION[type]);
+    setTime(TIMER_DURATIONS[type]);
+    setInitialTime(TIMER_DURATIONS[type]);
     setIsActive(false);
   }, []);
 
@@ -38,18 +45,19 @@ export const usePomodoro = ({ onComplete, onTick }: PomodoroConfig = {}) => {
         setTime((currentTime) => {
           if (currentTime <= 1) {
             setIsActive(false);
-            onComplete?.();
+            if (timerType === 'work') {
+              onComplete?.(getMinutesCompleted());
+            }
             return 0;
           }
-          const newTime = currentTime - 1;
-          onTick?.(newTime);
-          return newTime;
+          onTick?.(currentTime - 1);
+          return currentTime - 1;
         });
       }, 1000);
     }
 
     return () => clearInterval(interval);
-  }, [isActive, time, onComplete, onTick]);
+  }, [isActive, time, timerType, onComplete, onTick, getMinutesCompleted]);
 
   return {
     time,
@@ -59,5 +67,6 @@ export const usePomodoro = ({ onComplete, onTick }: PomodoroConfig = {}) => {
     pause: () => setIsActive(false),
     reset,
     changeTimerType,
+    getMinutesCompleted
   };
 }; 

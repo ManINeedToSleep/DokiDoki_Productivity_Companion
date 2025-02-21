@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import Loading from '@/components/Common/Loading';
 import CompanionDisplay from '@/components/Dashboard/CompanionDisplay';
-import NotebookMessage from '@/components/Dashboard/NotebookMessage';
 import { QuickStats } from '@/components/Dashboard/QuickStats';
 
 export default function DashboardPage() {
@@ -27,21 +26,21 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="h-full overflow-hidden"
+    <div className="min-h-screen overflow-y-auto"
       style={{ 
         backgroundImage: "url('/images/backgrounds/polkadot-pink.png')",
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundColor: "#FFF5F8"
       }}>
-      <div className="flex h-full"> {/* Changed min-h to h-full */}
+      <div className="flex relative">
         {/* Companion Section - 1/4 width */}
         <div className="w-1/4 fixed left-0 top-16 bottom-0">
           <CompanionDisplay />
         </div>
 
         {/* Main Content Section - 3/4 width */}
-        <div className="w-3/4 ml-[25%] p-8 overflow-y-auto"> {/* Added overflow-y-auto for content scrolling if needed */}
+        <div className="w-3/4 ml-[25%] p-8">
           <div className="bg-white/80 backdrop-blur-sm rounded-lg p-8 shadow-lg">
             <h1 className="text-3xl font-[Riffic] text-pink-700 mb-8">
               Welcome, {user?.email}!
@@ -72,7 +71,6 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
-      <NotebookMessage />
     </div>
   );
 }

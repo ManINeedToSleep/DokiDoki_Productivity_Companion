@@ -1,147 +1,119 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { db } from '@/lib/firebase';
-import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
-import { useAuth } from '@/contexts/AuthContext';
+import { doc, updateDoc } from 'firebase/firestore';
+import { useUserData } from './useUserData';
+import type { UserStats } from '@/types/user';
 
-interface TimerStats {
-  totalSessions: number;
-  totalMinutes: number;
-  currentStreak: number;
-  lastSessionDate: string | null;
-  todaysSessions: number;
-  todaysMinutes: number;
-  weeklyGoal: number;
-  weeklyProgress: number;
+const DEFAULT_WEEKLY_GOAL = 1200; // 20 hours per week
+
+interface FirebaseError {
+  code: string;
+  message: string;
 }
 
-const DEFAULT_STATS: TimerStats = {
-  totalSessions: 0,
-  totalMinutes: 0,
-  currentStreak: 0,
-  lastSessionDate: null,
-  todaysSessions: 0,
-  todaysMinutes: 0,
-  weeklyGoal: 10, // Default goal: 10 sessions per week
-  weeklyProgress: 0,
-};
-
 export function useTimerStats() {
-  const { user } = useAuth();
-  const [stats, setStats] = useState<TimerStats>(DEFAULT_STATS);
+  const { userData, loading } = useUserData();
   const [currentSessionMinutes, setCurrentSessionMinutes] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let mounted = true;
-
-    async function loadStats() {
-      if (!user) return;
-      
-      try {
-        setError(null);
-        const statsRef = doc(db, 'users', user.uid, 'stats', 'timer');
-        const statsDoc = await getDoc(statsRef);
-        
-        if (!mounted) return;
-
-        if (statsDoc.exists()) {
-          const data = statsDoc.data() as TimerStats;
-          // Reset daily stats if it's a new day
-          if (data.lastSessionDate !== new Date().toDateString()) {
-            try {
-              await updateDoc(statsRef, {
-                todaysSessions: 0,
-                todaysMinutes: 0,
-                lastSessionDate: new Date().toDateString()
-              });
-              if (mounted) {
-                setStats({ ...data, todaysSessions: 0, todaysMinutes: 0 });
-              }
-            } catch (err) {
-              console.error('Error resetting daily stats:', err);
-              if (mounted) {
-                setStats(data);
-              }
-            }
-          } else {
-            if (mounted) {
-              setStats(data);
-            }
-          }
-        } else {
-          // Initialize stats document
-          const initialStats = {
-            ...DEFAULT_STATS,
-            lastSessionDate: new Date().toDateString()
-          };
-          await setDoc(statsRef, initialStats);
-          if (mounted) {
-            setStats(initialStats);
-          }
-        }
-      } catch (err) {
-        console.error('Error loading stats:', err);
-        if (mounted) {
-          setError('Failed to load stats');
-        }
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
-      }
-    }
-
-    loadStats();
-    return () => { mounted = false; };
-  }, [user]);
-
-  const updateCurrentSession = (minutes: number) => {
-    setCurrentSessionMinutes(minutes);
-  };
+  const [currentSessionSeconds, setCurrentSessionSeconds] = useState(0);
 
   // Calculate real-time stats including current session
-  const realTimeStats = {
-    ...stats,
-    todaysMinutes: stats.todaysMinutes + currentSessionMinutes,
+  const realTimeStats = userData?.stats ? {
+    ...userData.stats,
+    todaysSessions: (userData.stats.todaysSessions || 0),
+    todaysMinutes: (userData.stats.todaysMinutes || 0) + currentSessionMinutes,
+    todaysSeconds: currentSessionSeconds,
+    weeklyProgress: calculateWeeklyProgress(userData.stats.history || {}) + currentSessionMinutes,
+  } : null;
+
+  const updateCurrentSession = (timeInSeconds: number) => {
+    const minutes = Math.floor(timeInSeconds / 60);
+    const seconds = timeInSeconds % 60;
+    setCurrentSessionMinutes(minutes);
+    setCurrentSessionSeconds(seconds);
   };
 
-  const updateStats = async (sessionMinutes: number) => {
-    if (!user) return;
-    setError(null);
+  const updateStats = async (minutesCompleted: number) => {
+    // Add early return if no user data (which means no auth)
+    if (!userData?.id) {
+      console.log('No authenticated user found');
+      return;
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Update history with current session
+    const history = userData.stats?.history || {};
+    const todaysSessions = (history[today]?.sessions || 0) + 1;
+    const todaysMinutes = (history[today]?.minutes || 0) + minutesCompleted;
+    
+    history[today] = {
+      sessions: todaysSessions,
+      minutes: todaysMinutes,
+      seconds: currentSessionSeconds
+    };
+
+    const newStats: UserStats = {
+      ...userData.stats,
+      totalSessions: (userData.stats?.totalSessions || 0) + 1,
+      todaysSessions,
+      todaysMinutes,
+      todaysSeconds: currentSessionSeconds,
+      lastActiveDate: today,
+      currentStreak: userData.stats?.currentStreak || 0,
+      longestStreak: Math.max(userData.stats?.currentStreak || 0, userData.stats?.longestStreak || 0),
+      weeklyProgress: calculateWeeklyProgress(history),
+      weeklyGoal: userData.stats?.weeklyGoal || DEFAULT_WEEKLY_GOAL,
+      totalMinutes: (userData.stats?.totalMinutes || 0) + minutesCompleted,
+      history
+    };
 
     try {
-      const statsRef = doc(db, 'users', user.uid, 'stats', 'timer');
-      const today = new Date().toDateString();
-      
-      const newStats = {
-        totalSessions: stats.totalSessions + 1,
-        totalMinutes: stats.totalMinutes + sessionMinutes,
-        todaysSessions: stats.todaysSessions + 1,
-        todaysMinutes: stats.todaysMinutes + sessionMinutes,
-        lastSessionDate: today,
-        weeklyProgress: stats.weeklyProgress + 1,
-        currentStreak: stats.lastSessionDate === today ? 
-          stats.currentStreak : 
-          stats.currentStreak + 1
-      };
-
-      await updateDoc(statsRef, newStats);
-      setStats(prev => ({ ...prev, ...newStats }));
-      setCurrentSessionMinutes(0); // Reset current session
+      const userRef = doc(db, 'users', userData.id);
+      await updateDoc(userRef, {
+        'stats': newStats
+      });
     } catch (err) {
-      console.error('Error updating stats:', err);
-      setError('Failed to update stats');
-      throw err;
+      // More specific error handling
+      if ((err as FirebaseError)?.code === 'permission-denied') {
+        console.log('Session expired, please sign in again');
+        return;
+      }
+      console.error('Failed to update stats:', err);
+    } finally {
+      setCurrentSessionMinutes(0);
+      setCurrentSessionSeconds(0);
     }
   };
 
+  // Return default stats if no userData
   return {
-    stats: realTimeStats, // Return real-time stats instead of base stats
-    loading,
-    error,
+    stats: userData ? (realTimeStats || {
+      totalSessions: 0,
+      todaysSessions: 0,
+      todaysMinutes: 0,
+      todaysSeconds: 0,
+      currentStreak: 0,
+      weeklyProgress: 0,
+      weeklyGoal: DEFAULT_WEEKLY_GOAL,
+    }) : null,
     updateStats,
-    updateCurrentSession
+    updateCurrentSession,
+    loading
   };
+}
+
+function calculateWeeklyProgress(history: { [date: string]: { minutes: number } }) {
+  const today = new Date();
+  let weeklyMinutes = 0;
+  
+  // Get last 7 days
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+    const dateStr = date.toISOString().split('T')[0];
+    weeklyMinutes += history[dateStr]?.minutes || 0;
+  }
+  
+  return weeklyMinutes;
 } 

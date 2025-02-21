@@ -22,18 +22,24 @@ import { useTimer } from "./TimerProvider";
  *    - Stops timer and resets to 25:00
  */
 export const TimerControls = () => {
-  const { isActive, start, pause, reset } = useTimer();
+  const { isRunning, startTimer, pauseTimer, resetTimer, skipTimer, timerType } = useTimer();
 
   return (
     <div className="flex justify-center gap-4">
       <DDLCButton 
-        label={isActive ? 'Pause' : 'Start'}
-        onClick={isActive ? pause : start}
+        label={isRunning ? 'Pause' : 'Start'}
+        onClick={isRunning ? pauseTimer : startTimer}
       />
       <DDLCButton 
         label="Reset"
-        onClick={reset}
+        onClick={resetTimer}
       />
+      {timerType !== 'work' && (
+        <DDLCButton 
+          label="Skip"
+          onClick={skipTimer}
+        />
+      )}
     </div>
   );
 }; 

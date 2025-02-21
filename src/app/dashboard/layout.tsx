@@ -1,5 +1,4 @@
 import Navbar from '@/components/Dashboard/Navbar';
-import NotebookWrapper from '@/components/Dashboard/NotebookWrapper';
 
 export default function DashboardLayout({
   children,
@@ -7,12 +6,13 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen h-screen bg-[#FFF5F8]">
+    <div className="min-h-screen flex flex-col bg-[#FFF5F8]">
       <Navbar />
-      <main className="h-[calc(100vh-4rem)]">
+      <br></br>
+      <br></br>
+      <main className="flex-1 overflow-auto">
         {children}
       </main>
-      <NotebookWrapper />
     </div>
   );
 } 

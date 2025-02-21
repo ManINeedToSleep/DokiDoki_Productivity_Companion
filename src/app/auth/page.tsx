@@ -11,6 +11,11 @@ import { useAuth } from '@/contexts/AuthContext';
 
 type AuthMode = "signin" | "signup";
 
+interface AuthError {
+  code: string;
+  message: string;
+}
+
 export default function AuthPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -18,8 +23,8 @@ export default function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [isAuthenticating, setIsAuthenticating] = useState(false);
-  const { user, loading } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const { user, loading: authLoading } = useAuth();
 
   // Set initial mode based on URL parameter
   useEffect(() => {
@@ -30,20 +35,23 @@ export default function AuthPage() {
   }, [searchParams]);
 
   useEffect(() => {
-    if (user && !loading) {
+    if (user && !authLoading) {
       router.push('/dashboard');
     }
-  }, [user, loading, router]);
+  }, [user, authLoading, router]);
 
   const handleGoogleSignIn = async () => {
     try {
-      setIsAuthenticating(true);
+      setError('');
+      setLoading(true);
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
       router.push('/dashboard');
-    } catch (error: any) {
-      setError(error.message);
-      setIsAuthenticating(false);
+    } catch (error: unknown) {
+      const authError = error as AuthError;
+      setError(authError.message || 'Failed to sign in with Google');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -52,21 +60,31 @@ export default function AuthPage() {
     setError("");
     
     try {
-      setIsAuthenticating(true);
+      setLoading(true);
       if (mode === "signup") {
         await createUserWithEmailAndPassword(auth, email, password);
       } else {
         await signInWithEmailAndPassword(auth, email, password);
       }
       router.push('/dashboard');
-    } catch (error: any) {
-      setError(error.message);
-      setIsAuthenticating(false);
+    } catch (error: unknown) {
+      const authError = error as AuthError;
+      if (authError.code === 'auth/email-already-in-use') {
+        setError('Email already in use. Try logging in instead.');
+      } else if (authError.code === 'auth/invalid-email') {
+        setError('Invalid email address.');
+      } else if (authError.code === 'auth/weak-password') {
+        setError('Password should be at least 6 characters.');
+      } else {
+        setError('Failed to create an account. Please try again.');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleButtonClick = () => {
-    handleEmailAuth(new Event('submit') as any);
+  const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    handleEmailAuth(e as unknown as React.FormEvent);
   };
 
   const chibis = [
@@ -76,7 +94,7 @@ export default function AuthPage() {
     { src: "/images/chibi_sprites/Monika-Chibi-HC.png", position: "right-[11%] bottom-[10%]" }
   ];
 
-  if (loading) {
+  if (authLoading) {
     return <Loading />;
   }
 
@@ -154,6 +172,7 @@ export default function AuthPage() {
             <DDLCButton 
               label={mode === "signin" ? "Sign In" : "Create Account"}
               onClick={handleButtonClick}
+              disabled={loading}
             />
           </div>
         </form>
@@ -171,6 +190,8 @@ export default function AuthPage() {
           <DDLCButton 
             label="Continue with Google"
             onClick={handleGoogleSignIn}
+            disabled={loading}
+            className="w-full"
           />
         </div>
 

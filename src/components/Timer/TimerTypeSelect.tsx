@@ -4,27 +4,27 @@ import { useTimer } from "./TimerProvider";
 import { cn } from "@/utils/cn";
 
 export const TimerTypeSelect = () => {
-  const { timerType, changeTimerType, isActive } = useTimer();
+  const { timerType, setTimerType, isRunning } = useTimer();
 
   return (
     <div className="flex justify-center gap-4 mb-8">
       <DDLCButton
         label="Pomodoro"
-        onClick={() => changeTimerType('pomodoro')}
-        className={cn(timerType !== 'pomodoro' && 'opacity-50')}
-        disabled={isActive}
+        onClick={() => setTimerType('work')}
+        className={cn(timerType !== 'work' && 'opacity-50')}
+        disabled={isRunning}
       />
       <DDLCButton
         label="Short Break"
-        onClick={() => changeTimerType('shortBreak')}
-        className={cn(timerType !== 'shortBreak' && 'opacity-50')}
-        disabled={isActive}
+        onClick={() => setTimerType('break')}
+        className={cn(timerType !== 'break' && 'opacity-50')}
+        disabled={isRunning}
       />
       <DDLCButton
         label="Long Break"
-        onClick={() => changeTimerType('longBreak')}
+        onClick={() => setTimerType('longBreak')}
         className={cn(timerType !== 'longBreak' && 'opacity-50')}
-        disabled={isActive}
+        disabled={isRunning}
       />
     </div>
   );

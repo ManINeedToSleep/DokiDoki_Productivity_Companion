@@ -62,7 +62,7 @@ export default function TimerPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
             >
-              <h2 className="text-xl font-[Riffic] text-pink-600 mb-4">Today's Progress</h2>
+              <h2 className="text-xl font-[Riffic] text-pink-600 mb-4">Today&apos;s Progress</h2>
               <TodayProgress />
             </motion.div>
 
@@ -78,8 +78,8 @@ export default function TimerPage() {
           </div>
         </div>
 
-        {/* Companion Section - 1/3 width */}
-        <div className="w-1/3 fixed right-0 top-16 bottom-0">
+        {/* Companion Section - 1/4 width */}
+        <div className="w-1/3 fixed right-10 top-16 bottom-0">
           <CompanionDisplay />
         </div>
       </div>

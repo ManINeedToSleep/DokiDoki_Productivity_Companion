@@ -4,8 +4,7 @@ import { db } from '@/lib/firebase';
 import { useAuth } from '@/contexts/AuthContext';
 import type { UserData, UserSettings } from '@/types/user';
 
-const defaultSettings: UserSettings = {
-  selectedCompanion: localStorage.getItem('selectedCompanion') || 'sayori',
+const defaultSettings: Omit<UserSettings, 'selectedCompanion'> = {
   pomodoroSettings: {
     workDuration: 25,
     breakDuration: 5,
@@ -28,36 +27,61 @@ export function useUserData() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function loadUserData() {
+    const fetchUserData = async () => {
       if (!user) {
+        setUserData(null);
         setLoading(false);
         return;
       }
 
-      const userRef = doc(db, 'users', user.uid);
-      const userDoc = await getDoc(userRef);
-
-      if (userDoc.exists()) {
-        setUserData(userDoc.data() as UserData);
-      } else {
-        // Create new user data with default settings
-        const newUserData: UserData = {
-          id: user.uid,
-          email: user.email || '',
-          settings: defaultSettings,
-          stats: {
-            totalSessions: 0,
-            totalMinutes: 0,
-            lastSession: new Date()
+      try {
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        
+        if (!userDoc.exists()) {
+          const selectedCompanion = localStorage.getItem('selectedCompanion');
+          
+          if (!selectedCompanion) {
+            setLoading(false);
+            return;
           }
-        };
-        await setDoc(userRef, newUserData);
-        setUserData(newUserData);
-      }
-      setLoading(false);
-    }
 
-    loadUserData();
+          const newUserData: UserData = {
+            id: user.uid,
+            email: user.email || '',
+            settings: {
+              ...defaultSettings,
+              selectedCompanion,
+            },
+            stats: {
+              totalSessions: 0,
+              todaysSessions: 0,
+              todaysMinutes: 0,
+              todaysSeconds: 0,
+              lastActiveDate: new Date().toISOString().split('T')[0],
+              currentStreak: 0,
+              longestStreak: 0,
+              weeklyProgress: 0,
+              weeklyGoal: 1200,
+              totalMinutes: 0,
+              history: {}
+            },
+            createdAt: new Date()
+          };
+          
+          await setDoc(doc(db, 'users', user.uid), newUserData);
+          setUserData(newUserData);
+          localStorage.removeItem('selectedCompanion');
+        } else {
+          setUserData(userDoc.data() as UserData);
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
   }, [user]);
 
   const updateSettings = async (newSettings: Partial<UserSettings>) => {
@@ -68,16 +92,20 @@ export function useUserData() {
       ...newSettings
     };
 
-    const userRef = doc(db, 'users', user.uid);
-    await setDoc(userRef, {
-      ...userData,
-      settings: updatedSettings
-    }, { merge: true });
+    try {
+      const userRef = doc(db, 'users', user.uid);
+      await setDoc(userRef, {
+        ...userData,
+        settings: updatedSettings
+      }, { merge: true });
 
-    setUserData({
-      ...userData,
-      settings: updatedSettings
-    });
+      setUserData({
+        ...userData,
+        settings: updatedSettings
+      });
+    } catch (error) {
+      console.error('Error updating settings:', error);
+    }
   };
 
   return { userData, loading, updateSettings };
