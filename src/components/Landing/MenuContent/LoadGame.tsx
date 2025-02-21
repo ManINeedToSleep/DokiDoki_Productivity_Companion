@@ -17,7 +17,7 @@ export default function LoadGame() {
           </p>
           <DDLCButton 
             label="Sign In" 
-            onClick={() => router.push('/auth')}
+            onClick={() => router.push('/auth?mode=signin')}
           />
         </div>
       </div>

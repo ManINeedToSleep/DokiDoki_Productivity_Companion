@@ -1,5 +1,6 @@
-// "use client";
-// import { useTimer } from "./TimerProvider";
+"use client";
+import { useTimer } from "./TimerProvider";
+import { motion } from "framer-motion";
 
 // /**
 //  * Timer Display Component
@@ -21,3 +22,18 @@
 //     </div>
 //   );
 // }; 
+
+export const TimerDisplay = () => {
+  const { minutes, seconds } = useTimer();
+
+  return (
+    <motion.div 
+      className="text-8xl font-[Halogen] text-center mb-8 text-pink-700"
+      initial={{ scale: 0.9 }}
+      animate={{ scale: 1 }}
+      transition={{ duration: 0.2 }}
+    >
+      {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
+    </motion.div>
+  );
+}; 

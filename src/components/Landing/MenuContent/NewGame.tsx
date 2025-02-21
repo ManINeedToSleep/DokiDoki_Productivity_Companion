@@ -50,10 +50,8 @@ export default function NewGame() {
 
   const handleStartJourney = () => {
     if (selectedCharacter) {
-      // You might want to store the selected character in localStorage or context
-      // before redirecting to auth
       localStorage.setItem('selectedCompanion', selectedCharacter);
-      router.push('/auth');
+      router.push('/auth?mode=signup');
     }
   };
 

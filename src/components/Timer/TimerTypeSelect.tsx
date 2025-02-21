@@ -1,33 +1,31 @@
-// import { Button } from "../Common/Button";
-// import { useTimer } from "./TimerProvider";
-// import { cn } from "@/utils/cn";
+"use client";
+import DDLCButton from "@/components/Common/Buttons/Button";
+import { useTimer } from "./TimerProvider";
+import { cn } from "@/utils/cn";
 
-// export const TimerTypeSelect = () => {
-//   const { timerType, changeTimerType, isActive } = useTimer();
+export const TimerTypeSelect = () => {
+  const { timerType, changeTimerType, isActive } = useTimer();
 
-//   return (
-//     <div className="flex justify-center gap-4 mb-8">
-//       <Button
-//         onClick={() => changeTimerType('pomodoro')}
-//         className={cn(timerType !== 'pomodoro' && 'opacity-50')}
-//         disabled={isActive}
-//       >
-//         Pomodoro
-//       </Button>
-//       <Button
-//         onClick={() => changeTimerType('shortBreak')}
-//         className={cn(timerType !== 'shortBreak' && 'opacity-50')}
-//         disabled={isActive}
-//       >
-//         Short Break
-//       </Button>
-//       <Button
-//         onClick={() => changeTimerType('longBreak')}
-//         className={cn(timerType !== 'longBreak' && 'opacity-50')}
-//         disabled={isActive}
-//       >
-//         Long Break
-//       </Button>
-//     </div>
-//   );
-// }; 
+  return (
+    <div className="flex justify-center gap-4 mb-8">
+      <DDLCButton
+        label="Pomodoro"
+        onClick={() => changeTimerType('pomodoro')}
+        className={cn(timerType !== 'pomodoro' && 'opacity-50')}
+        disabled={isActive}
+      />
+      <DDLCButton
+        label="Short Break"
+        onClick={() => changeTimerType('shortBreak')}
+        className={cn(timerType !== 'shortBreak' && 'opacity-50')}
+        disabled={isActive}
+      />
+      <DDLCButton
+        label="Long Break"
+        onClick={() => changeTimerType('longBreak')}
+        className={cn(timerType !== 'longBreak' && 'opacity-50')}
+        disabled={isActive}
+      />
+    </div>
+  );
+}; 

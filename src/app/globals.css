@@ -58,3 +58,10 @@ body {
   font-style: normal;
   font-display: swap;
 }
+
+@font-face {
+  font-family: 'Halogen';
+  src: url('/fonts/Halogen.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
