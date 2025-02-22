@@ -17,11 +17,13 @@ export default function CompanionDisplay() {
 
   if (!companion) return null;
 
+  const capitalizedName = companion.charAt(0).toUpperCase() + companion.slice(1);
+
   return (
     <div className="h-full flex items-end justify-center">
       <motion.img
-        src={`/images/sprites/${companion}-hc-724.png`}
-        alt={`${companion} sprite`}
+        src={`/images/sprites/${capitalizedName}-hc-724.png`}
+        alt={`${capitalizedName} sprite`}
         className="h-[90vh] object-contain"
         initial={{ opacity: 0, x: -50 }}
         animate={{ opacity: 1, x: 0 }}
