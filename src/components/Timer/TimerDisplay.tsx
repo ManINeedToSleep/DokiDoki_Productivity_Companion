@@ -24,16 +24,16 @@ import { motion } from "framer-motion";
 // }; 
 
 export function TimerDisplay() {
-  const { time, timerType, sessionCount } = useTimer();
+  const { time, timerType, sessionsCompleted } = useTimer();
 
   const minutes = Math.floor(time / 60);
   const seconds = time % 60;
 
   const getTimerLabel = () => {
     switch (timerType) {
-      case 'work':
+      case 'pomodoro':
         return 'Pomodoro';
-      case 'break':
+      case 'shortBreak':
         return 'Short Break';
       case 'longBreak':
         return 'Long Break';
@@ -54,7 +54,7 @@ export function TimerDisplay() {
         {getTimerLabel()}
       </div>
       <div className="text-sm font-[Halogen] text-pink-500 mt-2">
-        Session {sessionCount + 1}
+        Session {sessionsCompleted + 1}
       </div>
     </div>
   );

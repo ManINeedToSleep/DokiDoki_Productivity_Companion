@@ -28,16 +28,17 @@ function MainContent() {
   const { selectedCharacter } = useCharacter();
 
   return (
-    <div className="min-h-screen flex font-sans"
+    <div className="min-h-screen flex font-sans relative"
       style={{ 
         backgroundImage: "url('/images/backgrounds/polkadot-pink.png')",
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundColor: "#FFF5F8"
       }}>
+
       {/* Main Menu Image */}
       <motion.div
-        className="h-full w-1/2 max-w-2xl"
+        className="h-full w-1/4"
         initial={{ opacity: 0, x: -50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 1 }}
@@ -58,20 +59,16 @@ function MainContent() {
         {selectedCharacter && (
           <motion.div
             key={selectedCharacter}
-            className="fixed left-[5%] top-[10%] pointer-events-none z-0"
-            initial={{ opacity: 0, scale: 0.8, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 10 }}
-            transition={{ 
-              duration: 0.5,
-              ease: "easeOut",
-              opacity: { duration: 0.3 }
-            }}
+            className="h-screen flex items-center justify-center w-1/4"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.5 }}
           >
             <Image
               src={characters[selectedCharacter as keyof typeof characters]?.spritePath}
               alt={characters[selectedCharacter as keyof typeof characters]?.name}
-              className="h-[85vh] object-contain origin-bottom"
+              className="h-[85vh] w-auto object-contain"
               width={724}
               height={1024}
               priority
@@ -80,8 +77,13 @@ function MainContent() {
         )}
       </AnimatePresence>
 
-      {/* Menu Options */}
-      <MenuOptions />
+      {/* Empty quarter for spacing */}
+      <div className="w-1/4" />
+
+      {/* Menu Options - in the last quarter */}
+      <div className="w-1/4">
+        <MenuOptions />
+      </div>
       
       {/* Footer */}
       <footer className="absolute bottom-4 left-4 text-gray-600 text-sm">

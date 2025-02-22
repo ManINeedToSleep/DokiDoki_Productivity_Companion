@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import AuthWrapper from "@/components/Providers/AuthWrapper";
+import SharedBackgroundMusic from '@/components/Common/Audio/SharedBackgroundMusic';
+import { AudioProvider } from '@/contexts/AudioContext';
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -15,9 +17,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <AuthWrapper>
-          {children}
-        </AuthWrapper>
+        <AudioProvider>
+          <SharedBackgroundMusic />
+          <AuthWrapper>
+            {children}
+          </AuthWrapper>
+        </AudioProvider>
       </body>
     </html>
   );

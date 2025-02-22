@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import MenuContent from "./MenuContent";
+import { useSound } from '@/hooks/useSound';
 
 const menuItems = [
   {
@@ -34,6 +35,7 @@ const menuItems = [
 export default function MenuOptions() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const playSelectSound = useSound('/audio/sfx/ddlc-select-sfx.mp3');
 
   const getItemPosition = (position: number) => {
     const radius = 200;
@@ -44,6 +46,12 @@ export default function MenuOptions() {
     const x = Math.sin(angle) * radius * 0.25;
     
     return `translateX(${x}px) translateY(${y}px)`;
+  };
+
+  const handleMenuSelect = (index: number) => {
+    playSelectSound();
+    setSelectedIndex(index);
+    menuItems[index].onClick();
   };
 
   return (
@@ -73,10 +81,7 @@ export default function MenuOptions() {
                 }}
                 onMouseEnter={() => setHoveredIndex(index)}
                 onMouseLeave={() => setHoveredIndex(null)}
-                onClick={() => {
-                  setSelectedIndex(index);
-                  item.onClick();
-                }}
+                onClick={() => handleMenuSelect(index)}
               >
                 <div className="relative">
                   {/* Background text (hot pink border effect) */}

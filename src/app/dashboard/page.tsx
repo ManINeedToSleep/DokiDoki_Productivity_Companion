@@ -26,13 +26,9 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen overflow-y-auto"
-      style={{ 
-        backgroundImage: "url('/images/backgrounds/polkadot-pink.png')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundColor: "#FFF5F8"
-      }}>
+    <div className="min-h-screen overflow-y-auto">
+           <br></br>
+           <br></br>
       <div className="flex relative">
         {/* Companion Section - 1/4 width */}
         <div className="w-1/4 fixed left-0 top-16 bottom-0">
@@ -40,6 +36,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Main Content Section - 3/4 width */}
+        
         <div className="w-3/4 ml-[25%] p-8">
           <div className="bg-white/80 backdrop-blur-sm rounded-lg p-8 shadow-lg">
             <h1 className="text-3xl font-[Riffic] text-pink-700 mb-8">

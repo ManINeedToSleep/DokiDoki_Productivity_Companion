@@ -27,13 +27,7 @@ export default function TimerPage() {
 
   return (
     <div 
-      className="min-h-[calc(100vh-4rem)] pt-16"
-      style={{ 
-        backgroundImage: "url('/images/backgrounds/polkadot-pink.png')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundColor: "#FFF5F8"
-      }}>
+      className="min-h-[calc(100vh-4rem)] pt-16">
       <div className="flex">
         {/* Main Timer Section - 2/3 width */}
         <div className="w-2/3 p-8">

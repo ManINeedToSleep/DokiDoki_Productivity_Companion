@@ -1,23 +1,18 @@
 import { useState, useEffect } from 'react';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/contexts/AuthContext';
 import type { UserData, UserSettings } from '@/types/user';
 
 const defaultSettings: Omit<UserSettings, 'selectedCompanion'> = {
-  pomodoroSettings: {
-    workDuration: 25,
-    breakDuration: 5,
-    longBreakDuration: 15,
-    sessionsBeforeLongBreak: 4
-  },
+  pomodoroLength: 25,
+  shortBreakLength: 5,
+  longBreakLength: 15,
+  soundVolume: 0.5,
+  musicVolume: 0.3,
   notifications: {
     sound: true,
     desktop: true
-  },
-  theme: {
-    background: 'default',
-    color: 'pink'
   }
 };
 
@@ -84,25 +79,32 @@ export function useUserData() {
     fetchUserData();
   }, [user]);
 
-  const updateSettings = async (newSettings: Partial<UserSettings>) => {
-    if (!user || !userData) return;
-
-    const updatedSettings = {
-      ...userData.settings,
-      ...newSettings
-    };
-
+  const updateSettings = async (newSettings: UserSettings) => {
+    if (!user?.uid) return;
+    
     try {
-      const userRef = doc(db, 'users', user.uid);
-      await setDoc(userRef, {
-        ...userData,
-        settings: updatedSettings
-      }, { merge: true });
-
-      setUserData({
-        ...userData,
-        settings: updatedSettings
+      // Update the document with the entire settings object
+      await updateDoc(doc(db, 'users', user.uid), {
+        settings: {
+          selectedCompanion: newSettings.selectedCompanion,
+          pomodoroLength: newSettings.pomodoroLength,
+          shortBreakLength: newSettings.shortBreakLength,
+          longBreakLength: newSettings.longBreakLength,
+          soundVolume: newSettings.soundVolume,
+          musicVolume: newSettings.musicVolume,
+          notifications: {
+            sound: newSettings.notifications.sound,
+            desktop: newSettings.notifications.desktop
+          }
+        },
+        updatedAt: serverTimestamp()
       });
+      
+      // Update local state
+      setUserData(prev => prev ? {
+        ...prev,
+        settings: newSettings
+      } : null);
     } catch (error) {
       console.error('Error updating settings:', error);
     }
