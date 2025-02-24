@@ -24,7 +24,7 @@ import { motion } from "framer-motion";
 // }; 
 
 export function TimerDisplay() {
-  const { time, timerType, sessionsCompleted } = useTimer();
+  const { time, timerType, sessionCount } = useTimer();
 
   const minutes = Math.floor(time / 60);
   const seconds = time % 60;
@@ -40,6 +40,9 @@ export function TimerDisplay() {
     }
   };
 
+  // Calculate current session number (minimum of 1)
+  const currentSession = Math.max((sessionCount || 0) + 1, 1);
+
   return (
     <div className="text-center mb-8">
       <motion.div
@@ -54,7 +57,7 @@ export function TimerDisplay() {
         {getTimerLabel()}
       </div>
       <div className="text-sm font-[Halogen] text-pink-500 mt-2">
-        Session {sessionsCompleted + 1}
+        Session {currentSession}
       </div>
     </div>
   );

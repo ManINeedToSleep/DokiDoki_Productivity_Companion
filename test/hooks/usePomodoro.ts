@@ -38,7 +38,7 @@ export function usePomodoro({ onComplete, onTick }: PomodoroConfig = {}) {
   const [isActive, setIsActive] = useState(false);
   const [initialTime, setInitialTime] = useState(() => getTimerDuration(timerType));
   
-  const intervalRef = useRef<NodeJS.Timeout>();
+  const intervalRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   // Timer effect
   useEffect(() => {

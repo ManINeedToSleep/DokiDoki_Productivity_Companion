@@ -1,7 +1,9 @@
 "use client";
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useRef } from "react";
 import { useTimerStats } from '@/hooks/useTimerStats';
 import { useUserData } from '@/hooks/useUserData';
+import { usePomodoro } from '@/hooks/usePomodoro';
+import type { TimerType } from '@/hooks/usePomodoro';
 
 /**
  * Timer Context and Provider
@@ -22,16 +24,17 @@ import { useUserData } from '@/hooks/useUserData';
 interface TimerContextType {
   time: number;
   isRunning: boolean;
-  timerType: 'pomodoro' | 'shortBreak' | 'longBreak';
-  sessionsCompleted: number;
+  timerType: TimerType;
+  sessionCount: number;
   startTimer: () => void;
   pauseTimer: () => void;
   resetTimer: () => void;
-  setTimerType: (type: 'pomodoro' | 'shortBreak' | 'longBreak') => void;
+  skipTimer: () => void;
+  setTimerType: (type: TimerType) => void;
 }
 
 // Create context with null as initial value
-const TimerContext = createContext<TimerContextType | null>(null);
+const TimerContext = createContext<TimerContextType | undefined>(undefined);
 
 /**
  * Timer Provider Component
@@ -48,85 +51,93 @@ const TimerContext = createContext<TimerContextType | null>(null);
  * ```
  */
 export function TimerProvider({ children }: { children: React.ReactNode }) {
-  const { updateStats } = useTimerStats();
+  const { updateStats, updateCurrentSession } = useTimerStats();
   const { userData } = useUserData();
-  const [time, setTime] = useState(25 * 60);
-  const [isRunning, setIsRunning] = useState(false);
-  const [timerType, setTimerType] = useState<'pomodoro' | 'shortBreak' | 'longBreak'>('pomodoro');
-  const [sessionsCompleted, setSessionsCompleted] = useState(0);
+  const [sessionCount, setSessionCount] = useState(0);
+  const completedRef = useRef(false);
+  const mountRef = useRef(false);
 
-  // Update timer when settings change
   useEffect(() => {
-    if (userData?.settings) {
-      switch (timerType) {
-        case 'pomodoro':
-          setTime(userData.settings.pomodoroLength * 60);
-          break;
-        case 'shortBreak':
-          setTime(userData.settings.shortBreakLength * 60);
-          break;
-        case 'longBreak':
-          setTime(userData.settings.longBreakLength * 60);
-          break;
-      }
+    if (mountRef.current) {
+      console.warn('TimerProvider mounted multiple times!');
     }
-  }, [userData?.settings, timerType]);
+    mountRef.current = true;
 
-  // Timer countdown logic
+    return () => {
+      mountRef.current = false;
+    };
+  }, []);
+
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-
-    if (isRunning && time > 0) {
-      interval = setInterval(() => {
-        setTime((prevTime) => {
-          if (prevTime <= 1) {
-            setIsRunning(false);
-            if (timerType === 'pomodoro') {
-              setSessionsCompleted(prev => prev + 1);
-              updateStats(userData?.settings?.pomodoroLength || 25);
-            }
-            return 0;
-          }
-          return prevTime - 1;
-        });
-      }, 1000);
+    if (userData) {
+      setSessionCount(userData.stats.todaysSessions || 0);
     }
+  }, [userData]);
 
-    return () => clearInterval(interval);
-  }, [isRunning, time, timerType, userData?.settings?.pomodoroLength, updateStats]);
+  const handleComplete = async (minutesCompleted: number) => {
+    console.log('handleComplete called with:', {
+      minutesCompleted,
+      completedRef: completedRef.current,
+      timerType
+    });
 
-  const startTimer = () => setIsRunning(true);
-  const pauseTimer = () => setIsRunning(false);
-  const resetTimer = () => {
-    setIsRunning(false);
-    if (userData?.settings) {
-      switch (timerType) {
-        case 'pomodoro':
-          setTime(userData.settings.pomodoroLength * 60);
-          break;
-        case 'shortBreak':
-          setTime(userData.settings.shortBreakLength * 60);
-          break;
-        case 'longBreak':
-          setTime(userData.settings.longBreakLength * 60);
-          break;
+    if (!completedRef.current && minutesCompleted > 0 && timerType === 'pomodoro') {
+      try {
+        completedRef.current = true;
+        console.log('Updating stats with minutes:', minutesCompleted);
+        await updateStats(minutesCompleted);
+        setSessionCount(prev => prev + 1);
+        updateCurrentSession(0);
+      } catch (error) {
+        console.error('Failed to update stats:', error);
       }
     }
   };
 
+  const {
+    time,
+    isActive: isRunning,
+    timerType,
+    start: startTimer,
+    pause: pauseTimer,
+    reset: resetTimer,
+    changeTimerType: setTimerType,
+    getMinutesCompleted
+  } = usePomodoro({
+    onComplete: handleComplete,
+    onTick: (remainingTime) => {
+      if (timerType === 'pomodoro') {
+        const pomodoroLength = userData?.settings?.pomodoroLength || 25;
+        const timeElapsed = pomodoroLength * 60 - remainingTime;
+        updateCurrentSession(timeElapsed);
+      }
+    }
+  });
+
+  // Reset completion flag when timer starts
+  useEffect(() => {
+    console.log('Timer running state changed:', isRunning);
+    if (isRunning) {
+      completedRef.current = false;
+    }
+  }, [isRunning]);
+
   return (
-    <TimerContext.Provider
-      value={{
-        time,
-        isRunning,
-        timerType,
-        sessionsCompleted,
-        startTimer,
-        pauseTimer,
-        resetTimer,
-        setTimerType
-      }}
-    >
+    <TimerContext.Provider value={{
+      time,
+      isRunning,
+      timerType,
+      sessionCount,
+      startTimer,
+      pauseTimer,
+      resetTimer,
+      skipTimer: () => {
+        if (timerType === 'pomodoro') return;
+        resetTimer();
+        setTimerType('pomodoro');
+      },
+      setTimerType
+    }}>
       {children}
     </TimerContext.Provider>
   );
@@ -145,7 +156,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
  */
 export function useTimer() {
   const context = useContext(TimerContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useTimer must be used within a TimerProvider');
   }
   return context;
