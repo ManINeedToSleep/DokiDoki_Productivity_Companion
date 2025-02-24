@@ -17,20 +17,33 @@ Remember how supportive our favorite club members were? Well, now they're here t
 ### ✨ Club Activities (Features)
 
 #### 📝 Study Tools
-- **Literature-Inspired Pomodoro Timer**: Break your study sessions into manageable chunks
-- **Poem-Like Progress Tracking**: Watch your daily achievements build like verses
-- **Character-Based Statistics**: Let your favorite Doki track your progress
-- **Achievement Poems**: Unlock special messages as you maintain your study streak!
+- **Character-Themed Pomodoro Timer**: 
+  - Customizable work/break intervals
+  - Character-specific color schemes and messages
+  - Visual and audio notifications
+  - Session tracking and statistics
+- **Interactive Chat System**: Talk with your chosen companion for motivation
+- **Dynamic Audio System**: 
+  - Character-specific background music
+  - Adjustable sound effects and music volume
+  - Ambient study atmosphere
+- **Customizable Settings**:
+  - Personalize timer durations
+  - Adjust notification preferences
+  - Control audio levels
+  - Choose your study companion
 
 #### 🌸 Club Member System
 - Choose your study companion (they're all really excited to help!)
 - Receive personalized encouragement based on your study patterns
-- Dynamic interactions that evolve with your progress (nothing weird this time, we swear!)
+- Dynamic interactions that evolve with your progress
+- Character-specific UI themes and color schemes
 
 #### 🔐 Club Membership (Authentication)
 - Create your own club member profile
 - Sign in with email or Google
-- Your progress is safely stored (in a normal database, not in any suspicious .chr files)
+- Your progress is safely stored
+- Persistent settings across sessions
 
 ## Getting Started With The Club!
 
@@ -64,6 +77,15 @@ npm run dev
 
 5. Visit your local club room at [http://localhost:3000](http://localhost:3000)
 
+## Recent Updates! 🌟
+- Added character-specific chat colors and themes
+- Implemented persistent audio settings
+- Enhanced timer controls with DDLC-style buttons
+- Improved companion display and interactions
+- Added session tracking and statistics
+- Centralized timer controls for better usability
+- Character-specific visual themes throughout the app
+
 ## Club Rules (Project Structure)
 ```
 src/
@@ -94,4 +116,43 @@ This is a fan project made with love for DDLC. We're not affiliated with Team Sa
 *Happy Studying!*
 ~ Your Club President 💚
 
+## Known Issues & Future Plans 🔧
 
+### Current Issues 🐛
+- **Menu Animation**: Landing page menu transitions need smoother arc-based animations
+- **Audio Transitions**: Background music transitions could be smoother between pages
+- **Mobile Responsiveness**: Some UI elements need better mobile adaptation
+- **Loading States**: Need more consistent loading indicators across the app
+
+### Future Features 🌟
+#### Advanced Chat System
+- **AI-Powered Character Interactions**:
+  - Individual personality models for each Doki
+  - Context-aware responses based on study habits
+  - Memory of past conversations and progress
+  - Character-specific writing styles and quirks
+
+#### Enhanced Privacy & Security
+- **Message Encryption**: End-to-end encryption for chat messages
+- **Data Privacy**: Advanced anonymization of user study data
+- **Customizable Privacy Settings**: Granular control over data sharing
+
+#### UI/UX Improvements
+- **Dynamic Backgrounds**: Character-specific animated backgrounds
+- **Improved Menu Animations**: Smooth, arc-based menu transitions
+- **Advanced Statistics**: Detailed visual analytics of study patterns
+- **Achievement System**: Unlock special character interactions and themes
+
+#### Companion Features
+- **Study Recommendations**: Personalized study tips from each character
+- **Mood Detection**: Adaptive responses based on user interaction patterns
+- **Custom Study Plans**: Character-guided study scheduling
+- **Social Features**: Optional study group formation with shared stats
+
+### In Development 🚧
+- AI chat integration with character-specific personalities
+- Enhanced animation system for menu transitions
+- Improved data security measures
+- Mobile-first responsive design updates
+
+*Want to help with any of these? Check out our Contributing guidelines!*

@@ -1,3 +1,5 @@
+"use client";
+
 import Navbar from '@/components/Dashboard/Navbar';
 
 export default function DashboardLayout({
@@ -6,10 +8,16 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex flex-col bg-[#FFF5F8]">
+    <div 
+      className="min-h-screen flex flex-col"
+      style={{ 
+        backgroundImage: "url('/images/backgrounds/polkadot-pink.png')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundColor: "#FFF5F8"
+      }}
+    >
       <Navbar />
-      <br></br>
-      <br></br>
       <main className="flex-1 overflow-auto">
         {children}
       </main>

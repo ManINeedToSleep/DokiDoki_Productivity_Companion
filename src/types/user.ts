@@ -20,19 +20,14 @@ export interface UserStats {
 
 export interface UserSettings {
   selectedCompanion: string;
-  pomodoroSettings: {
-    workDuration: number;  // in minutes
-    breakDuration: number;
-    longBreakDuration: number;
-    sessionsBeforeLongBreak: number;
-  };
+  pomodoroLength: number;
+  shortBreakLength: number;
+  longBreakLength: number;
+  soundVolume: number;
+  musicVolume: number;
   notifications: {
     sound: boolean;
     desktop: boolean;
-  };
-  theme: {
-    background: string;
-    color: string;
   };
 }
 

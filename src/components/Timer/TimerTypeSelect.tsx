@@ -1,31 +1,39 @@
 "use client";
-import DDLCButton from "@/components/Common/Buttons/Button";
-import { useTimer } from "./TimerProvider";
-import { cn } from "@/utils/cn";
 
-export const TimerTypeSelect = () => {
+import { useTimer } from './TimerProvider';
+import { useUserData } from '@/hooks/useUserData';
+import DDLCButton from '@/components/Common/Buttons/Button';
+
+export function TimerTypeSelect() {
   const { timerType, setTimerType, isRunning } = useTimer();
+  const { userData } = useUserData();
+
+  const settings = userData?.settings || {
+    pomodoroLength: 25,
+    shortBreakLength: 5,
+    longBreakLength: 15
+  };
 
   return (
     <div className="flex justify-center gap-4 mb-8">
       <DDLCButton
-        label="Pomodoro"
-        onClick={() => setTimerType('work')}
-        className={cn(timerType !== 'work' && 'opacity-50')}
+        label={`Pomodoro (${settings.pomodoroLength}m)`}
+        onClick={() => setTimerType('pomodoro')}
         disabled={isRunning}
+        className={timerType !== 'pomodoro' ? 'opacity-70' : ''}
       />
       <DDLCButton
-        label="Short Break"
-        onClick={() => setTimerType('break')}
-        className={cn(timerType !== 'break' && 'opacity-50')}
+        label={`Short Break (${settings.shortBreakLength}m)`}
+        onClick={() => setTimerType('shortBreak')}
         disabled={isRunning}
+        className={timerType !== 'shortBreak' ? 'opacity-70' : ''}
       />
       <DDLCButton
-        label="Long Break"
+        label={`Long Break (${settings.longBreakLength}m)`}
         onClick={() => setTimerType('longBreak')}
-        className={cn(timerType !== 'longBreak' && 'opacity-50')}
         disabled={isRunning}
+        className={timerType !== 'longBreak' ? 'opacity-70' : ''}
       />
     </div>
   );
-}; 
+} 

@@ -12,6 +12,7 @@ import {
 } from 'react-icons/fa';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
+import { useSound } from '@/hooks/useSound';
 
 interface NavItem {
   label: string;
@@ -29,8 +30,10 @@ const navItems: NavItem[] = [
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
+  const playSelectSound = useSound('/audio/sfx/ddlc-select-sfx.mp3');
 
   const handleSignOut = async () => {
+    playSelectSound();
     try {
       await signOut(auth);
       router.push('/');
@@ -39,11 +42,21 @@ export default function Navbar() {
     }
   };
 
+  const handleNavClick = (path: string) => {
+    if (path !== pathname) {
+      playSelectSound();
+    }
+  };
+
   return (
     <div className="fixed top-0 left-0 right-0 h-16 bg-[#FFEEF3] border-b-4 border-[#FFB6C1] shadow-lg flex items-center justify-center z-50">
       <div className="flex items-center space-x-4">
         {navItems.map((item) => (
-          <Link href={item.path} key={item.path}>
+          <Link 
+            href={item.path} 
+            key={item.path}
+            onClick={() => handleNavClick(item.path)}
+          >
             <motion.div
               className={`relative px-4 py-2 rounded-md cursor-pointer flex items-center gap-2
                 ${pathname === item.path 
